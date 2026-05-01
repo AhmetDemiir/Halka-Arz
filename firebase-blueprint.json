@@ -1,0 +1,84 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile information",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email"]
+    },
+    "BankAccount": {
+      "title": "BankAccount",
+      "description": "Connected bank account information",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "bankName": { "type": "string" },
+        "accountName": { "type": "string" },
+        "balance": { "type": "number" },
+        "stockBalance": { "type": "number" },
+        "ipoBalance": { "type": "number" }
+      },
+      "required": ["userId", "bankName", "accountName"]
+    },
+    "IPO": {
+      "title": "IPO",
+      "description": "Public offering data",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "ticker": { "type": "string" },
+        "price": { "type": "number" },
+        "distributionMethod": { "type": "string" },
+        "expectedLot": { "type": "number" },
+        "startDate": { "type": "string" },
+        "endDate": { "type": "string" },
+        "status": { "type": "string", "enum": ["ACTIVE", "UPCOMING", "COMPLETED"] },
+        "summary": { "type": "string" }
+      },
+      "required": ["name", "ticker", "price"]
+    },
+    "Participation": {
+      "title": "Participation",
+      "description": "User participation record in an IPO",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "ipoId": { "type": "string" },
+        "ipoTicker": { "type": "string" },
+        "bankAccountId": { "type": "string" },
+        "amountInvested": { "type": "number" },
+        "lotsReceived": { "type": "number" },
+        "status": { "type": "string", "enum": ["PENDING", "ALLOCATED", "REJECTED"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "ipoId", "amountInvested"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profile documents"
+    },
+    "/bankAccounts/{accountId}": {
+      "schema": "BankAccount",
+      "description": "Bank account documents"
+    },
+    "/ipos/{ipoId}": {
+      "schema": "IPO",
+      "description": "IPO documents"
+    },
+    "/participations/{participationId}": {
+      "schema": "Participation",
+      "description": "User participation records"
+    }
+  }
+}

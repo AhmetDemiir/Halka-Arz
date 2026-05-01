@@ -1,0 +1,49 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --color-brand-emerald: #10b981;
+  --color-dark-bg: #0A0B0D;
+  --color-dark-panel: #0F1115;
+  --color-dark-border: #1E293B;
+}
+
+@layer utilities {
+  @keyframes flash-up {
+    0% { background-color: rgba(16, 185, 129, 0.2); }
+    100% { background-color: transparent; }
+  }
+  @keyframes flash-down {
+    0% { background-color: rgba(244, 63, 94, 0.2); }
+    100% { background-color: transparent; }
+  }
+  .animate-flash-up {
+    animation: flash-up 1s ease-out;
+  }
+  .animate-flash-down {
+    animation: flash-down 1s ease-out;
+  }
+}
+
+@layer base {
+  body {
+    @apply antialiased text-slate-200 bg-[#0A0B0D];
+  }
+
+  .text-glow {
+    text-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-slate-800 rounded-full hover:bg-slate-700 transition-colors;
+  }
+}

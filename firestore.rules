@@ -1,0 +1,74 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helpers
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+    
+    function existing() {
+      return resource.data;
+    }
+
+    // User Rules
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow create: if isOwner(userId) && (
+        incoming().keys().hasAll(['uid', 'email']) && 
+        incoming().uid == userId
+      );
+      allow update: if isOwner(userId) && (
+        incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'email'])
+      );
+    }
+
+    // BankAccount Rules
+    match /bankAccounts/{accountId} {
+      allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow get: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && incoming().userId == request.auth.uid && (
+        incoming().keys().hasAll(['userId', 'bankName', 'accountName', 'balance'])
+      );
+      allow update: if isSignedIn() && existing().userId == request.auth.uid && (
+        incoming().diff(existing()).affectedKeys().hasOnly(['balance', 'stockBalance', 'ipoBalance', 'accountName'])
+      );
+      allow delete: if isSignedIn() && existing().userId == request.auth.uid;
+    }
+
+    // IPO Rules (Publicly readable for signed-in users)
+    match /ipos/{ipoId} {
+      allow list, get: if isSignedIn();
+      allow write: if false; // Only via admin or system in a real app
+    }
+
+    // Participation Rules
+    match /participations/{participationId} {
+      allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow get: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && incoming().userId == request.auth.uid && (
+        incoming().keys().hasAll(['userId', 'ipoId', 'amountInvested'])
+      );
+      allow update: if isSignedIn() && existing().userId == request.auth.uid && (
+        incoming().diff(existing()).affectedKeys().hasOnly(['amountInvested', 'lotsReceived', 'status'])
+      );
+      allow delete: if isSignedIn() && existing().userId == request.auth.uid;
+    }
+  }
+}
